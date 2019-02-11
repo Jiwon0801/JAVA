@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="edu.autocar.tourguide.dao.TourGuideDao">
+	<select id="getCount" resultType="int"><![CDATA[
+		select count(*) as total from tourguide		
+	]]></select>
+
+	<select id="getPage" resultType="TourGuide" parameterType="map"><![CDATA[
+		select	num, name, region, city, content, address, homepage
+		from ( 
+			select row_number() over (order by region) as seq,  
+				num, name, region, city, content, address, homepage 
+			from tourguide
+		) 
+		where seq between #{start} and #{end}
+		order by region
+	]]></select>
+	
+	<select id="selectList" resultType="TourGuide"><![CDATA[
+		select	* from tourguide order by region
+	]]></select>
+	
+	<select id="getRegions" resultType="String"><![CDATA[
+		select	distinct region from tourguide		
+	]]></select>
+
+	<select id="getRegionList" resultType="TourGuide"
+			parameterType="String"><![CDATA[
+		select	* from tourguide
+		where region = #{region}
+		order by city
+	]]></select>
+
+	
+	<select id="selectOne" resultType="TourGuide" 
+			parameterType="int"><![CDATA[
+		select * from tourguide
+		where num = #{num} 		
+	]]></select>
+
+
+	<select id="search" resultType="TourGuide" parameterType="map"><![CDATA[
+		select * from tourguide
+		where ${category} like '%${keyword}%'	
+	]]></select>
+	
+	<insert id="insert" parameterType="TourGuide"><![CDATA[
+		insert into tourguide 
+			(num, name, region, city, content, address, homepage) 
+		values(tourguide_seq.nextval, #{name}, #{region}, #{city}, 
+			#{content}, #{address}, #{homepage})
+	]]></insert>
+	
+	<update id="update" parameterType="TourGuide"><![CDATA[
+		update tourguide set 
+			name=#{name}, 
+			region=#{region},
+			city=#{city},
+			content=#{content},
+			homepage=#{homepage}
+			 
+		where num=#{num}
+	]]></update>
+	
+	
+	<delete id="delete" parameterType="int"><![CDATA[
+		delete from tourguide
+		where num=#{num}
+	]]></delete>
+	
+</mapper>
